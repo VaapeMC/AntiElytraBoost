@@ -1,0 +1,5 @@
+name: AntiElytraBoost
+main: me.vaape.antielytraboost.AntiElytraBoost
+version: 1.0
+api-version: 1.17
+commands:
