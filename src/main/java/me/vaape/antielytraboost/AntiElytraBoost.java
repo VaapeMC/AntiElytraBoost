@@ -3,7 +3,6 @@ package me.vaape.antielytraboost;
 import java.util.HashMap;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
@@ -14,27 +13,27 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.scheduler.BukkitTask;
 
 public class AntiElytraBoost extends JavaPlugin implements Listener {
 
     public static AntiElytraBoost plugin;
 
-    private final HashMap<UUID, Integer> boostCooldown = new HashMap<UUID, Integer>(); //Cooldown for players who
-    // have shot
-    // themselves or used firework
-    private final HashMap<UUID, BukkitRunnable> boostCooldownTask = new HashMap<UUID, BukkitRunnable>();
+    public final HashMap<UUID, Integer> boostCooldown = new HashMap<UUID, Integer>(); //Cooldown for players who
+    private BukkitTask coolDownReducer;
 
     public void onEnable() {
         plugin = this;
         getLogger().info(ChatColor.GREEN + "AntiElytraBoost has been enabled!");
         getServer().getPluginManager().registerEvents(this, this);
+        this.coolDownReducer = new CoolDownReducer().runTaskTimer(plugin, 20, 20);
     }
 
     public void onDisable() {
         plugin = null;
+        coolDownReducer.cancel();
     }
 
     @EventHandler
@@ -54,21 +53,6 @@ public class AntiElytraBoost extends JavaPlugin implements Listener {
                         player.sendMessage(ChatColor.RED + "You cannot elytra boost for another " + boostCooldown.get(UUID) + " seconds.");
                     } else {
                         boostCooldown.put(UUID, 180);
-                        boostCooldownTask.put(UUID, new BukkitRunnable() {
-
-                            @Override
-                            public void run() {
-                                boostCooldown.put(UUID, boostCooldown.get(UUID) - 1); //Lower cooldown by 1 second
-                                if (boostCooldown.get(UUID) == 0) {
-                                    boostCooldown.remove(UUID);
-                                    boostCooldownTask.remove(UUID);
-                                    Bukkit.getPlayer(UUID).sendMessage(ChatColor.GREEN + "Elytra boost refreshed");
-                                    cancel();
-                                }
-                            }
-                        });
-
-                        boostCooldownTask.get(UUID).runTaskTimer(plugin, 20, 20);
                     }
                 }
             }
@@ -90,21 +74,6 @@ public class AntiElytraBoost extends JavaPlugin implements Listener {
                         player.sendMessage(ChatColor.RED + "You cannot elytra boost for another " + boostCooldown.get(UUID) + " seconds.");
                     } else {
                         boostCooldown.put(UUID, 180);
-                        boostCooldownTask.put(UUID, new BukkitRunnable() {
-
-                            @Override
-                            public void run() {
-                                boostCooldown.put(UUID, boostCooldown.get(UUID) - 1); //Lower cooldown by 1 second
-                                if (boostCooldown.get(UUID) == 0) {
-                                    boostCooldown.remove(UUID);
-                                    boostCooldownTask.remove(UUID);
-                                    Bukkit.getPlayer(UUID).sendMessage(ChatColor.GREEN + "Elytra boost refreshed");
-                                    cancel();
-                                }
-                            }
-                        });
-
-                        boostCooldownTask.get(UUID).runTaskTimer(plugin, 20, 20);
                     }
                 }
             }
